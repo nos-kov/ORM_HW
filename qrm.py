@@ -41,7 +41,7 @@ if not session.query(Book.title).all():
         session.add(model(id=record.get('pk'), **record.get('fields')))
 
     session.commit()    
-
+#t
 pub_name = input("Enter publisher name:")
 for c in session.query(Book.title, Shop.name, Sale.price, Sale.date_sale).join(Publisher, Publisher.id == Book.id_publisher).join(Stock, Stock.id_book == Book.id).join(Shop, Shop.id == Stock.id_shop).join(Sale, Stock.id == Sale.id_stock).filter(Publisher.name.like('%' + pub_name + '%')).all():
     print(c)

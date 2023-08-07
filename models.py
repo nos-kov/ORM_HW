@@ -69,6 +69,6 @@ class Sale(Base):
         return f"{self.id}: {self.price} , {self.count} , {self.date_sale}"
     
 
-
+#t
 def create_tables(engine):
     Base.metadata.create_all(engine)
