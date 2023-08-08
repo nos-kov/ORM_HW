@@ -9,12 +9,12 @@ configur = ConfigParser()
 configur.read('config.ini')
   
 
-DSN = (configur.get('connection','dbtype') + '://' + 
-configur.get('connection','user') + 
-':' + configur.get('connection','password') + 
-'@' + configur.get('connection','server') + 
-':' + configur.get('connection','port') + '/' 
-+ configur.get('connection','db'))
+DSN = (configur.get('connection', 'dbtype') + '://' +
+       configur.get('connection', 'user') + 
+       ':' + configur.get('connection', 'password') + 
+       '@' + configur.get('connection', 'server') + 
+       ':' + configur.get('connection', 'port') + '/' 
+       + configur.get('connection', 'db'))
 
 engine = sqlalchemy.create_engine(DSN)
 
@@ -40,10 +40,35 @@ if not session.query(Book.title).all():
 
         session.add(model(id=record.get('pk'), **record.get('fields')))
 
-    session.commit()    
-#t
-pub_name = input("Enter publisher name:")
-for c in session.query(Book.title, Shop.name, Sale.price, Sale.date_sale).join(Publisher, Publisher.id == Book.id_publisher).join(Stock, Stock.id_book == Book.id).join(Shop, Shop.id == Stock.id_shop).join(Sale, Stock.id == Sale.id_stock).filter(Publisher.name.like('%' + pub_name + '%')).all():
-    print(c)
+    session.commit()   
 
-session.close
+
+def get_shops(pub_name):
+    
+    my_query = session.query(
+        Book.title, 
+        Shop.name, 
+        Sale.price, 
+        Sale.date_sale).select_from(Book).join(Publisher, 
+        Publisher.id == Book.id_publisher).join(Stock, 
+        Stock.id_book == Book.id).join(Shop, 
+        Shop.id == Stock.id_shop).join(Sale, 
+        Stock.id == Sale.id_stock)
+        
+    if pub_name.isdigit():
+        result = my_query.filter(Publisher.id == pub_name).all()
+    else:
+        result = my_query.filter(Publisher.name.like('%' +
+                                 pub_name + '%')).all()
+
+    for c in result:
+        print(f"{c[0]: <40} | {c[1]: <10}"
+              f" | {c[2]: <8} | {c[3].strftime('%d-%m-%Y')}")     
+
+    session.close
+
+
+if __name__ == "__main__":
+
+    pub_name = input("Enter publisher name:")
+    get_shops(pub_name)
